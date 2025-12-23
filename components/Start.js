@@ -6,6 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 
 const Start = ({ navigation }) => {
@@ -13,49 +15,55 @@ const Start = ({ navigation }) => {
   const [backgroundColor, setBackgroundColor] = useState("#090C08");
   const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
   return (
-    <ImageBackground
-      source={require("../assets/background.png")}
-      style={styles.background}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 60}
+      style={{ flex: 1 }}
     >
-      <Text style={styles.title}>Chat App</Text>
+      <ImageBackground
+        source={require("../assets/background.png")}
+        style={styles.background}
+      >
+        <Text style={styles.title}>Chat App</Text>
 
-      <View style={styles.card}>
-        <TextInput
-          style={styles.textInput}
-          value={name}
-          onChangeText={setName}
-          placeholder="Your name"
-        />
+        <View style={styles.card}>
+          <TextInput
+            style={styles.textInput}
+            value={name}
+            onChangeText={setName}
+            placeholder="Your name here"
+          />
 
-        <Text style={styles.label}>Choose background color</Text>
-        <View style={styles.colorOptions}>
-          {colors.map((color) => (
-            <TouchableOpacity
-              key={color}
-              onPress={() => setBackgroundColor(color)}
-              style={[
-                styles.colorOuter,
-                backgroundColor === color && styles.selectedColor,
-              ]}
-            >
-              <View style={[styles.colorInner, { backgroundColor: color }]} />
-            </TouchableOpacity>
-          ))}
+          <Text style={styles.label}>Choose background color</Text>
+          <View style={styles.colorOptions}>
+            {colors.map((color) => (
+              <TouchableOpacity
+                key={color}
+                onPress={() => setBackgroundColor(color)}
+                style={[
+                  styles.colorOuter,
+                  backgroundColor === color && styles.selectedColor,
+                ]}
+              >
+                <View style={[styles.colorInner, { backgroundColor: color }]} />
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              navigation.navigate("Chat", {
+                name,
+                backgroundColor,
+              })
+            }
+          >
+            <Text style={styles.buttonText}>Start Chatting</Text>
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() =>
-            navigation.navigate("Chat", {
-              name,
-              backgroundColor,
-            })
-          }
-        >
-          <Text style={styles.buttonText}>Start Chatting</Text>
-        </TouchableOpacity>
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+    </KeyboardAvoidingView>
   );
 };
 
