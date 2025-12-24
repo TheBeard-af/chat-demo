@@ -39,3 +39,12 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Android build artifacts
+android/build/
+android/.cxx/
+android/app/build/
+
+# OS
+.DS_Store
+Thumbs.db
