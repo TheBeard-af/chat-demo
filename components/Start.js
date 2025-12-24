@@ -10,10 +10,27 @@ import {
   Platform,
 } from "react-native";
 
-const Start = ({ navigation }) => {
+import { signInAnonymously } from "firebase/auth";
+
+const Start = ({ navigation, auth }) => {
   const [name, setName] = useState("");
   const [backgroundColor, setBackgroundColor] = useState("#090C08");
   const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
+
+  const signInUser = () => {
+    signInAnonymously(auth)
+      .then((result) => {
+        navigation.navigate("Chat", {
+          userID: result.user.uid,
+          name: name,
+          backgroundColor: backgroundColor,
+        });
+      })
+      .catch(() => {
+        alert("Unable to sign in. Please try again later.");
+      });
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -50,15 +67,7 @@ const Start = ({ navigation }) => {
             ))}
           </View>
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() =>
-              navigation.navigate("Chat", {
-                name,
-                backgroundColor,
-              })
-            }
-          >
+          <TouchableOpacity style={styles.button} onPress={signInUser}>
             <Text style={styles.buttonText}>Start Chatting</Text>
           </TouchableOpacity>
         </View>
