@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { StyleSheet, View, KeyboardAvoidingView, Platform } from "react-native";
-import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   collection,
   query,
@@ -9,7 +10,7 @@ import {
   addDoc,
 } from "firebase/firestore";
 
-const Chat = ({ route, navigation, db }) => {
+const Chat = ({ route, navigation, db, isConnected }) => {
   const { name, backgroundColor, userID } = route.params;
   const [messages, setMessages] = useState([]);
 
@@ -27,38 +28,68 @@ const Chat = ({ route, navigation, db }) => {
     addDoc(collection(db, "messages"), newMessages[0]);
   };
 
+  const cacheMessages = async (messagesToCache) => {
+    try {
+      await AsyncStorage.setItem("messages", JSON.stringify(messagesToCache));
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const loadCachedMessages = async () => {
+    const cachedMessages = (await AsyncStorage.getItem("messages")) || [];
+    setMessages(JSON.parse(cachedMessages));
+  };
+
+  const hasSentSystemMessage = useRef(false);
+
   useEffect(() => {
     navigation.setOptions({ title: name });
 
-    // Add system message when user enters chat
-    addDoc(collection(db, "messages"), {
-      _id: `${userID}-${Date.now()}`,
-      text: `${name} has entered the chat`,
-      createdAt: new Date(),
-      system: true,
-    });
+    let unsubMessages;
 
-    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+    if (isConnected === true) {
+      const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
 
-    const unsubMessages = onSnapshot(q, (docs) => {
-      let newMessages = [];
-      docs.forEach((doc) => {
-        const data = doc.data();
-        newMessages.push({
-          _id: doc.id,
-          ...data,
-          createdAt: data.createdAt
-            ? new Date(data.createdAt.toMillis())
-            : new Date(),
+      if (!hasSentSystemMessage.current) {
+        addDoc(collection(db, "messages"), {
+          _id: `${userID}-${Date.now()}`,
+          text: `${name} has entered the chat`,
+          createdAt: new Date(),
+          system: true,
         });
+        hasSentSystemMessage.current = true;
+      }
+
+      unsubMessages = onSnapshot(q, (docs) => {
+        let newMessages = [];
+        docs.forEach((doc) => {
+          const data = doc.data();
+          newMessages.push({
+            _id: doc.id,
+            ...data,
+            createdAt: data.createdAt
+              ? new Date(data.createdAt.toMillis())
+              : new Date(),
+          });
+        });
+
+        cacheMessages(newMessages);
+        setMessages(newMessages);
       });
-      setMessages(newMessages);
-    });
+    } else {
+      loadCachedMessages();
+    }
 
     return () => {
       if (unsubMessages) unsubMessages();
     };
-  }, []);
+  }, [isConnected]);
+
+  const renderInputToolbar = (props) => {
+    if (isConnected === true) return <InputToolbar {...props} />;
+    else return null;
+  };
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
@@ -66,6 +97,7 @@ const Chat = ({ route, navigation, db }) => {
         messages={messages}
         onSend={(messages) => onSend(messages)}
         renderBubble={renderBubble}
+        renderInputToolbar={renderInputToolbar}
         user={{
           _id: userID,
           name: name,

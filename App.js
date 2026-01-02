@@ -1,12 +1,18 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
+import { useEffect } from "react";
+import { Alert } from "react-native";
+import { useNetInfo } from "@react-native-community/netinfo";
 import Start from "./components/Start";
 import Chat from "./components/Chat";
 
-// ✅ Firebase imports (as per reading)
+// Firebase imports
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import {
+  getFirestore,
+  disableNetwork,
+  enableNetwork,
+} from "firebase/firestore";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -29,6 +35,17 @@ const auth = initializeAuth(app, {
 const Stack = createNativeStackNavigator();
 
 const App = () => {
+  const connectionStatus = useNetInfo();
+
+  useEffect(() => {
+    if (connectionStatus.isConnected === false) {
+      Alert.alert("Connection Lost!");
+      disableNetwork(db);
+    } else if (connectionStatus.isConnected === true) {
+      enableNetwork(db);
+    }
+  }, [connectionStatus.isConnected]);
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Start">
@@ -36,7 +53,13 @@ const App = () => {
           {(props) => <Start auth={auth} {...props} />}
         </Stack.Screen>
         <Stack.Screen name="Chat">
-          {(props) => <Chat db={db} {...props} />}
+          {(props) => (
+            <Chat
+              db={db}
+              isConnected={connectionStatus.isConnected}
+              {...props}
+            />
+          )}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
