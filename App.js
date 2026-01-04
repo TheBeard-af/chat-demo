@@ -15,6 +15,8 @@ import {
 } from "firebase/firestore";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDsViWOc8HaseE9gKjXN28mld_Kk3dDYa4",
@@ -27,6 +29,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
@@ -47,22 +50,25 @@ const App = () => {
   }, [connectionStatus.isConnected]);
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Start">
-        <Stack.Screen name="Start">
-          {(props) => <Start auth={auth} {...props} />}
-        </Stack.Screen>
-        <Stack.Screen name="Chat">
-          {(props) => (
-            <Chat
-              db={db}
-              isConnected={connectionStatus.isConnected}
-              {...props}
-            />
-          )}
-        </Stack.Screen>
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ActionSheetProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Start">
+          <Stack.Screen name="Start">
+            {(props) => <Start auth={auth} {...props} />}
+          </Stack.Screen>
+          <Stack.Screen name="Chat">
+            {(props) => (
+              <Chat
+                db={db}
+                storage={storage}
+                isConnected={connectionStatus.isConnected}
+                {...props}
+              />
+            )}
+          </Stack.Screen>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ActionSheetProvider>
   );
 };
 

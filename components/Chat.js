@@ -9,8 +9,10 @@ import {
   onSnapshot,
   addDoc,
 } from "firebase/firestore";
+import CustomActions from "./CustomActions";
+import MapView from "react-native-maps";
 
-const Chat = ({ route, navigation, db, isConnected }) => {
+const Chat = ({ route, navigation, db, storage, isConnected }) => {
   const { name, backgroundColor, userID } = route.params;
   const [messages, setMessages] = useState([]);
 
@@ -91,6 +93,45 @@ const Chat = ({ route, navigation, db, isConnected }) => {
     else return null;
   };
 
+  const renderCustomActions = (props) => {
+    return (
+      <CustomActions
+        {...props}
+        onSend={onSend}
+        storage={storage}
+        user={{
+          _id: userID,
+          name: name,
+        }}
+      />
+    );
+  };
+
+  const renderCustomView = (props) => {
+    const { currentMessage } = props;
+
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{
+            width: 150,
+            height: 100,
+            borderRadius: 13,
+            margin: 3,
+          }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+
+    return null;
+  };
+
   return (
     <View style={[styles.container, { backgroundColor }]}>
       <GiftedChat
@@ -98,6 +139,8 @@ const Chat = ({ route, navigation, db, isConnected }) => {
         onSend={(messages) => onSend(messages)}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
+        renderActions={renderCustomActions}
+        renderCustomView={renderCustomView}
         user={{
           _id: userID,
           name: name,
