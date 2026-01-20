@@ -5,7 +5,10 @@
 Chat App is a React Native mobile chat application built with Expo.
 It allows users to send text messages, share images from their device or camera, and share their current location in real time.
 Messages and media are stored using Google Firebase, enabling persistent chat history across devices.
-The app was developed as part of a mobile development project focused on communication features, accessibility, and ethical data usage.
+
+This app was developed as part of a mobile development project focused on communication features, accessibility, and ethical data usage in the CareerFoundry Full-Stack Immersion Program.
+
+---
 
 ## Features
 
@@ -17,10 +20,12 @@ The app was developed as part of a mobile development project focused on communi
 - Offline message caching
 - Accessible custom action button
 
+---
+
 ## Technologies Used
 
 - React Native
-- Expo (development build)
+- Expo
 - React Native Gifted Chat
 - Firebase Authentication
 - Firebase Firestore
@@ -29,67 +34,117 @@ The app was developed as part of a mobile development project focused on communi
 - Expo Location
 - React Native Maps
 
+---
+
 ## Setup Instructions
 
 ### Prerequisites
 
+Ensure the following are installed:
+
 - Node.js (LTS recommended)
+- npm
 - Expo CLI
 - Android Studio (Android Emulator)
-- A physical Android device (recommended for testing camera and location)
+- A physical Android device (recommended for camera and location testing)
 - Firebase account
 
-### Installation & Configuration
+To install Expo CLI globally:
 
-- Install project dependencies:
+npm install -g expo-cli
 
-  ```bash
-  npm install
-  ```
+---
 
-- Create a Firebase project and enable:
+### Installation
 
-  - Anonymous Authentication
-  - Firestore Database
-  - Firebase Storage
+1. Clone the repository:
 
-- Add your Firebase configuration to `App.js`.
+git clone <your-repository-url>
+cd chat-app
 
-- (Optional) Create a `.env` file for your Google Maps API key:
-  ```env
-  GOOGLE_MAPS_API_KEY=your_api_key_here
-  ```
+2. Install dependencies:
 
-### Running the App
+npm install
 
-- Run the app using a development build:
-
-  ```bash
-  npx expo run:android
-  ```
-
-- This installs the app on an Android emulator or connected physical device and starts the Metro bundler.
-- To enable hot reloading over Wi‑Fi on a physical device, Android Wireless Debugging can be used.
+---
 
 ## Firebase Configuration
 
-- Firestore is used to store chat messages, image URLs, and location data.
-- Firebase Storage is used to store uploaded images.
-- Firestore and Storage rules were configured to allow read/write access for development purposes.
+This app uses **Google Firebase** as its backend service.
+
+### Firebase Services Used
+
+- Firebase Authentication (Anonymous sign-in)
+- Firestore Database (chat messages and metadata)
+- Firebase Cloud Storage (image uploads)
+
+### Configuration Setup
+
+Firebase credentials are added directly in `App.js` using Firebase’s configuration object.
+
+Developers setting up this project must:
+
+1. Create a Firebase project
+2. Enable:
+   - Anonymous Authentication
+   - Firestore Database
+   - Firebase Storage
+3. Replace the Firebase configuration object in `App.js` with their own project credentials
+
+Sensitive Firebase credentials should not be committed to public repositories.
+
+---
+
+## Environment Variables (Optional)
+
+If using Google Maps for location rendering, an API key may be required.
+
+Optionally create a `.env` file in the project root:
+
+GOOGLE_MAPS_API_KEY=your_api_key_here
+
+This key is used only for map rendering and does not affect chat functionality.
+
+---
+
+## Running the App
+
+To run the app on Android:
+
+npx expo run:android
+
+This will:
+
+- Build the app
+- Install it on an Android emulator or connected physical device
+- Start the Metro bundler
+
+For physical devices, Android Wireless Debugging can be used to enable hot reloading.
+
+---
 
 ## Permissions
 
 The app requests the following permissions at runtime:
 
-- Media Library access (for selecting images)
-- Camera access (for taking photos)
-- Location access (for sharing current location)
+- Media Library access (image selection)
+- Camera access (photo capture)
+- Location access (location sharing)
 
-Permissions are handled using Expo APIs and are requested only when required.
+Permissions are requested only when required and handled using Expo APIs.
+
+---
 
 ## Known Issues
 
 - Tapping an image message opens a blank modal due to Gifted Chat’s default image viewer behavior.
-  This does not affect image rendering or storage and is a known library limitation.
-- Location sharing from the Android emulator requires manually setting mock coordinates.
-- Deprecation warnings related to `expo-image-picker` and `SafeAreaView` originate from library updates and do not affect functionality.
+  This does not affect image rendering or storage.
+- Location sharing on the Android emulator requires manually setting mock coordinates.
+- Deprecation warnings related to Expo libraries originate from upstream updates and do not affect functionality.
+
+---
+
+## 🤖 AI Usage Disclosure
+
+AI tools were used to assist with drafting and structuring documentation.
+All content was reviewed, edited, and verified for accuracy by the author.
